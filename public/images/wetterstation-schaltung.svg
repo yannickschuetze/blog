@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 320" role="img" aria-labelledby="ws-t"><title id="ws-t">Schaltskizze: Netzteil, Mikrocontroller und Temperatursensor</title>
+<!-- Authored schematic for a placeholder post. Replace with the real wiring. -->
+<g font-size="22">
+<rect x="48" y="96" width="200" height="128" fill="none" stroke="currentColor" stroke-width="2.5"/><text x="66" y="131" font-weight="700" fill="currentColor">Netzteil</text><text x="66" y="160" fill="currentColor" fill-opacity="0.72">5 V</text>
+<rect x="392" y="64" width="240" height="192" fill="none" stroke="currentColor" stroke-width="2.5"/><text x="410" y="99" font-weight="700" fill="currentColor">Mikrocontroller</text><text x="410" y="128" fill="currentColor" fill-opacity="0.72">WLAN</text>
+<rect x="776" y="96" width="152" height="128" fill="none" stroke="currentColor" stroke-width="2.5"/><text x="794" y="131" font-weight="700" fill="currentColor">Sensor</text><text x="794" y="160" fill="currentColor" fill-opacity="0.72">Temperatur</text>
+<line x1="248" x2="392" y1="136" y2="136" stroke="currentColor" stroke-width="2.5"/><text x="264" y="128" fill="currentColor" fill-opacity="0.72" font-size="21">+5 V</text>
+<line x1="248" x2="392" y1="184" y2="184" stroke="currentColor" stroke-width="2.5"/><text x="264" y="176" fill="currentColor" fill-opacity="0.72" font-size="21">GND</text>
+<line x1="632" x2="776" y1="128" y2="128" stroke="currentColor" stroke-width="2.5"/><text x="648" y="120" fill="currentColor" fill-opacity="0.72" font-size="21">3,3 V</text>
+<line x1="632" x2="776" y1="160" y2="160" stroke="currentColor" stroke-width="2.5"/><text x="648" y="152" fill="currentColor" fill-opacity="0.72" font-size="21">Daten</text>
+<line x1="632" x2="776" y1="192" y2="192" stroke="currentColor" stroke-width="2.5"/><text x="648" y="184" fill="currentColor" fill-opacity="0.72" font-size="21">GND</text>
+<rect x="776" y="96" width="16" height="16" fill="currentColor"/></g></svg>

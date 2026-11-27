@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import PostView from '../components/PostView.astro';
+import { getPostByNr, getNeighbours, padNr } from '../lib/posts';
+
+const raw = Astro.params.nr ?? '';
+if (!/^\d{1,6}$/.test(raw)) return Astro.rewrite('/404');
+const post = await getPostByNr(Number(raw));
+if (!post) return Astro.rewrite('/404');
+// One address per post: /14/ and /0014/ both lead to /014/.
+if (raw !== padNr(post.nr)) return Astro.redirect(`/${padNr(post.nr)}/`, 301);
+const { older, newer } = await getNeighbours(post.nr);
+const ground = post.section === 'projekt' ? 'butter' : 'pink';
+---
+<Base title={post.title} description={post.summary ?? undefined} current={post.section} ground={ground} post={padNr(post.nr)}>
+  <PostView post={post} older={older} newer={newer} />
+</Base>

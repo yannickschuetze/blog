@@ -1,0 +1,39 @@
+---
+import AdminBase from '../../layouts/AdminBase.astro';
+import { getAllPosts, SECTIONS, fmtDate } from '../../lib/posts';
+
+const posts = await getAllPosts();
+const drafts = posts.filter((p) => p.status === 'draft').length;
+const done = Astro.url.searchParams.get('ok');
+const messages: Record<string, string> = {
+  deleted: 'Beitrag gelöscht.',
+};
+---
+<AdminBase title="Beiträge" current="posts">
+  <h1>Beiträge</h1>
+  {done && messages[done] && <p class="notice" role="status"><span class="tag">Erledigt</span>{messages[done]}</p>}
+  <div class="actions">
+    <a class="btn primary" href="/admin/beitrag/neu">Neuer Beitrag</a>
+  </div>
+  <h2>{posts.length} Beiträge{drafts > 0 && <>, davon {drafts} Entwürfe</>}</h2>
+  {posts.length === 0 ? (
+    <p class="empty-admin">Noch keine Beiträge. Leg los mit „Neuer Beitrag“.</p>
+  ) : (
+    <ul class="plist">
+      {posts.map((p) => (
+        <li>
+          <a href={`/admin/beitrag/${p.id}`}>
+            <span class="no">Nr. {p.nr}</span>
+            <span class="t">{p.title}</span>
+            <span class="st">
+              {p.status === 'published' ? <span class="badge">Online</span> : <span class="badge draft">Entwurf</span>}
+            </span>
+            <span class="m">
+              {SECTIONS[p.section].label} · {fmtDate(p.date)}{p.placeholder && ' · Platzhalter'}{!p.drawing && p.drawingIdea && ' · Zeichnung fehlt'}
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  )}
+</AdminBase>

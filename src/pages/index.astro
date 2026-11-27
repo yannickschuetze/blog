@@ -1,0 +1,27 @@
+---
+import Base from '../layouts/Base.astro';
+import PostIndex from '../components/PostIndex.astro';
+import Drawing from '../components/Drawing.astro';
+import { getPosts } from '../lib/posts';
+import { getDrawing, SLOTS } from '../lib/drawings';
+const posts = await getPosts();
+const drawing = await getDrawing('home');
+---
+<Base>
+  <div class="col hero">
+    <h1 class="display">Geschichten aus meinem Leben und Projekte, die ich nebenbei baue</h1>
+    <p class="by">ein Blog von Yannick</p>
+    <Drawing src={drawing?.src} alt={drawing?.alt ?? "Zeichnung von Yannick"} idea={SLOTS.home.idea} ratio={SLOTS.home.ratio} size="hero" />
+  </div>
+  <PostIndex posts={posts} label="Alle Beiträge" empty="Noch keine Beiträge. Der erste ist in Arbeit." />
+</Base>
+<style>
+  .hero { text-align: center; padding-top: calc(var(--m) * 8); }
+  .hero + :global(.ix) { margin-top: calc(var(--m) * 6); }
+  h1 { font-size: clamp(40px, 4.2vw + 6px, 64px); margin-inline: auto; }
+  .by { font-weight: 700; font-size: 24px; margin: calc(var(--m) * 2) 0 calc(var(--m) * 5); }
+  @media (max-width: 640px) {
+    .hero { padding-top: calc(var(--m) * 7); }
+    .by { font-size: 20px; margin-bottom: calc(var(--m) * 4); }
+  }
+</style>

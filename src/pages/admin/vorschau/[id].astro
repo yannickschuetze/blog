@@ -1,0 +1,18 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PostView from '../../../components/PostView.astro';
+import { getPostById, getNeighbours } from '../../../lib/posts';
+import '../../../styles/admin.css';
+
+const id = Number(Astro.params.id);
+const post = Number.isInteger(id) ? await getPostById(id) : null;
+if (!post) return Astro.redirect('/admin');
+const { older, newer } = await getNeighbours(post.nr);
+---
+<Base title={`Vorschau: ${post.title}`} current={post.section} ground={post.section === 'projekt' ? 'butter' : 'pink'}>
+  <div class="preview-bar">
+    <span>Vorschau{post.status === 'draft' ? ' · Entwurf, nicht online' : ' · online'}</span>
+    <a href={`/admin/beitrag/${post.id}`}>Zurück zum Bearbeiten</a>
+  </div>
+  <PostView post={post} older={older} newer={newer} />
+</Base>

@@ -1,0 +1,44 @@
+---
+import '../styles/global.css';
+import '../styles/admin.css';
+
+interface Props {
+  title: string;
+  current?: 'posts' | 'drawings' | 'about';
+  bare?: boolean;
+  ground?: 'pink' | 'butter';
+}
+const { title, current, bare = false, ground = 'pink' } = Astro.props;
+const csrf = Astro.locals.session?.csrf ?? '';
+---
+<!doctype html>
+<html lang="de" data-ground={ground}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} – Admin – yannicksblog</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#ffc4c0" />
+  </head>
+  <body class="admin">
+    {!bare && (
+      <header class="col abar">
+        <a class="amark" href="/admin"><span>yannicksblog</span><span class="caps tag">Admin</span></a>
+        <nav class="caps anav" aria-label="Admin">
+          <a href="/admin" aria-current={current === 'posts' ? 'page' : undefined}>Beiträge</a>
+          <a href="/admin/zeichnungen" aria-current={current === 'drawings' ? 'page' : undefined}>Zeichnungen</a>
+          <a href="/admin/ueber-mich" aria-current={current === 'about' ? 'page' : undefined}>Über mich</a>
+          <a href="/" target="_blank" rel="noopener">Zum Blog</a>
+          <form method="post" action="/admin/logout" class="inline">
+            <input type="hidden" name="csrf" value={csrf} />
+            <button class="linkish caps" type="submit">Abmelden</button>
+          </form>
+        </nav>
+      </header>
+    )}
+    <main class="col amain">
+      <slot />
+    </main>
+  </body>
+</html>

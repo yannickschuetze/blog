@@ -1,0 +1,115 @@
+---
+import Drawing from './Drawing.astro';
+import { SECTIONS, postHref, fmtLong, fmtDate, readingMinutes, type Post } from '../lib/posts';
+import { renderMarkdown } from '../lib/markdown';
+import { uploadUrl } from '../lib/uploads';
+
+interface Props { post: Post; older: Post | null; newer: Post | null }
+const { post, older, newer } = Astro.props;
+const html = renderMarkdown(post.body);
+const s = SECTIONS[post.section];
+const minutes = readingMinutes(post.body);
+---
+  <article class="col post">
+    <header class="head">
+      <h1 class="display title">{post.title}</h1>
+      <p class="caps meta">
+        <span class="nr">Nr. {post.nr}</span>
+        <a href={s.href}>{s.label}</a>
+        <time datetime={post.dateIso}><span class="long">{fmtLong(post.date)}</span><span class="short">{fmtDate(post.date)}</span></time>
+        <span>{minutes} Min.</span>
+      </p>
+    </header>
+    {(post.drawing || post.drawingIdea) && (
+      <Drawing src={post.drawing ? uploadUrl(post.drawing) : null} size="medium" ratio="4 / 3" alt={post.drawingIdea ?? `Zeichnung zu „${post.title}“`} idea={post.drawingIdea ?? 'Eine Zeichnung zu diesem Beitrag.'} where="im Admin beim Beitrag" />
+    )}
+    <div class="body">
+      {post.placeholder && (
+        <p class="placeholder"><span class="tag">Platzhalter</span>Dieser Beitrag zeigt nur, wie ein Text hier aussieht. Er wird durch einen echten ersetzt.</p>
+      )}
+      <div class="prose">
+        <Fragment set:html={html} />
+      </div>
+    </div>
+    <nav class="pager" aria-label="Weitere Beiträge">
+      {older ? (
+        <a class="prev" href={postHref(older)} rel="prev">
+          <span class="caps lbl">Vorheriger · Nr. {older.nr}</span>
+          <span class="display pt wobble">{older.title}</span>
+        </a>
+      ) : <span class="prev caps lbl">Das ist der erste Beitrag.</span>}
+      {newer ? (
+        <a class="next" href={postHref(newer)} rel="next">
+          <span class="caps lbl">Nächster · Nr. {newer.nr}</span>
+          <span class="display pt wobble">{newer.title}</span>
+        </a>
+      ) : <span class="next caps lbl">Das ist der neueste Beitrag.</span>}
+    </nav>
+  </article>
+<style>
+  .head { text-align: center; padding: calc(var(--m) * 12) 0 calc(var(--m) * 6); }
+  .meta { display: flex; flex-wrap: wrap; justify-content: center; column-gap: calc(var(--m) * 3); row-gap: 0; font-size: 20px; }
+  .meta a { text-decoration: none; }
+  .meta .short { display: none; }
+  .meta a:hover { text-decoration: underline; }
+  .nr { background: var(--ink); color: var(--ground); padding: 2px 8px 0; transform: rotate(-2deg); display: inline-block; }
+  .title { font-size: var(--t-title); max-width: 18ch; margin: 0 auto calc(var(--m) * 3); }
+
+  .body { max-width: var(--measure); margin: calc(var(--m) * 6) auto 0; }
+  .placeholder { margin-bottom: calc(var(--m) * 5); color: var(--mute); }
+  .placeholder .tag { font: 400 17px/1 var(--display); text-transform: uppercase; letter-spacing: 0.03em; background: var(--ink); color: var(--ground); padding: 3px 7px 1px; margin-right: 0.5em; display: inline-block; transform: rotate(-1.5deg); }
+  .prose { hyphens: auto; -webkit-hyphens: auto; }
+  .prose :global(p) { margin-bottom: calc(var(--m) * 3); }
+  .prose :global(h2) {
+    font: 900 30px/1 var(--display); text-transform: uppercase;
+    margin-top: calc(var(--m) * 7); margin-bottom: calc(var(--m) * 2);
+  }
+  .prose :global(a) { font-weight: 700; }
+  .prose :global(ul), .prose :global(ol) { margin: 0 0 calc(var(--m) * 3) calc(var(--m) * 3); }
+  .prose :global(li) { margin-bottom: var(--m); padding-left: calc(var(--m) / 2); }
+  .prose :global(blockquote) {
+    margin: calc(var(--m) * 6) 0;
+    font: 400 clamp(26px, 1.4vw + 18px, 34px)/1.1 var(--display);
+    text-transform: uppercase;
+    text-align: center;
+    text-wrap: balance;
+  }
+  .prose :global(blockquote p) { margin: 0; }
+  .prose :global(strong) { font-weight: 700; }
+  .prose :global(code) { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.86em; background: color-mix(in srgb, var(--ink) 10%, transparent); padding: 0.05em 0.3em; border-radius: 3px; }
+  .prose :global(pre) { margin-block: calc(var(--m) * 4); padding: calc(var(--m) * 2.5); background: var(--ink); color: var(--ground); border-radius: 6px; overflow-x: auto; font-size: 15px; line-height: 1.6; }
+  .prose :global(pre code) { background: none; padding: 0; font-size: inherit; }
+  .prose :global(hr) { border: 0; border-top: var(--rule); margin-block: calc(var(--m) * 6); }
+  .prose :global(figure) { margin-block: calc(var(--m) * 6); }
+  .prose :global(figure svg), .prose :global(figure img) { display: block; width: 100%; height: auto; color: var(--ink); }
+  .prose :global(.fig-narrow) { display: none; }
+  .prose :global(figcaption) { margin-top: calc(var(--m) * 1.5); font-size: var(--t-small); color: var(--mute); }
+  .prose :global(.fig-no) { font: 400 18px/1 var(--display); text-transform: uppercase; color: var(--ink); letter-spacing: 0.03em; margin-right: 0.3em; }
+  @media (max-width: 640px) {
+    .prose :global(.fig-wide) { display: none; }
+    .prose :global(.fig-narrow) { display: block; }
+  }
+
+  .pager {
+    display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--m) * 4);
+    margin-top: calc(var(--m) * 12);
+    padding-top: calc(var(--m) * 4);
+    border-top: var(--rule);
+  }
+  .pager > * { display: flex; flex-direction: column; gap: var(--m); text-decoration: none; }
+  .next { text-align: right; align-items: flex-end; }
+  .lbl { font-size: 18px; color: var(--mute); }
+  .pt { font-size: var(--t-row); line-height: 1.02; max-width: 22ch; text-wrap: balance; }
+  .pager a:hover .pt { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 0.12em; }
+  .prev .pt { transform-origin: left center; }
+  .next .pt { transform-origin: right center; }
+
+  @media (max-width: 640px) {
+    .head { padding-top: calc(var(--m) * 7); }
+    .meta { font-size: 18px; column-gap: calc(var(--m) * 2); row-gap: var(--m); }
+    .meta .long { display: none; }
+    .meta .short { display: inline; }
+    .pager { grid-template-columns: 1fr; }
+    .next { text-align: left; align-items: flex-start; }
+  }
+</style>

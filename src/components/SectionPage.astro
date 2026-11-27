@@ -1,0 +1,31 @@
+---
+import Base from '../layouts/Base.astro';
+import PostIndex from './PostIndex.astro';
+import Drawing from './Drawing.astro';
+import { getPosts, SECTIONS, type Section } from '../lib/posts';
+import { getDrawing, SLOTS } from '../lib/drawings';
+interface Props { section: Section; lede: string; empty: string }
+const { section, lede, empty } = Astro.props;
+const slot = section === 'projekt' ? 'projekte' : 'geschichten';
+const drawing = await getDrawing(slot);
+const posts = await getPosts(section);
+const s = SECTIONS[section];
+const ground = section === 'projekt' ? 'butter' : 'pink';
+---
+<Base title={s.plural} description={`${s.plural}: ${lede}`} current={section} ground={ground}>
+  <div class="col opener">
+    <h1 class="display">{s.plural}</h1>
+    <p class="lede">{lede}</p>
+    <Drawing src={drawing?.src} alt={drawing?.alt ?? `Zeichnung zu den ${s.plural}`} idea={SLOTS[slot].idea} ratio={SLOTS[slot].ratio} size="medium" />
+  </div>
+  <PostIndex posts={posts} showSection={false} label={s.plural} empty={empty} />
+</Base>
+<style>
+  .opener { text-align: center; padding-top: calc(var(--m) * 12); }
+  h1 { font-size: var(--t-hero); }
+  .lede { font-weight: 700; font-size: 24px; margin: calc(var(--m) * 3) auto calc(var(--m) * 6); max-width: 32ch; text-wrap: balance; }
+  @media (max-width: 640px) {
+    .opener { padding-top: calc(var(--m) * 7); }
+    .lede { font-size: 20px; margin-bottom: calc(var(--m) * 4); }
+  }
+</style>

@@ -1,0 +1,53 @@
+---
+interface Props { current?: 'geschichte' | 'projekt' | 'about' }
+const { current } = Astro.props;
+const cur = (k: string) => (current === k ? 'page' : undefined);
+---
+<header class="col mast">
+  <a class="mark" href="/" aria-label="yannicksblog, Startseite"><span class="wobble">yannicksblog</span></a>
+  <nav aria-label="Hauptnavigation" class="caps">
+    <ul>
+      <li><a href="/geschichten/" aria-current={cur('geschichte')}>Geschichten</a></li>
+      <li><a href="/projekte/" aria-current={cur('projekt')}>Projekte</a></li>
+      <li class="about"><a href="/ueber-mich/" aria-current={cur('about')}>Über mich</a></li>
+    </ul>
+  </nav>
+</header>
+<style>
+  .mast {
+    display: grid;
+    grid-template-columns: 1fr auto auto 1fr;
+    align-items: center;
+    column-gap: calc(var(--m) * 4);
+    padding-top: calc(var(--m) * 4);
+  }
+  .mark { text-decoration: none; flex: none; }
+  .mark span {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--ground);
+    font: 900 26px/1 var(--display);
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    padding: 7px 10px 4px;
+    transform: rotate(-2deg);
+  }
+  .mark { justify-self: start; }
+  nav { display: contents; font-size: 21px; }
+  ul { display: contents; list-style: none; }
+  li { grid-row: 1; }
+  li:nth-child(1) { grid-column: 2; }
+  li:nth-child(2) { grid-column: 3; }
+  .about { grid-column: 4; justify-self: end; }
+  nav a { text-decoration: none; padding-block: 4px; }
+  nav a:hover, nav a[aria-current='page'] { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 0.2em; }
+  @media (max-width: 640px) {
+    .mast { grid-template-columns: repeat(3, auto); justify-content: space-between; column-gap: calc(var(--m) * 2); row-gap: calc(var(--m) * 2); }
+    .mark { grid-column: 1 / -1; grid-row: 1; }
+    nav { font-size: 20px; }
+    li:nth-child(1), li:nth-child(2), .about { grid-row: 2; margin: 0; justify-self: start; }
+    li:nth-child(1) { grid-column: 1; }
+    li:nth-child(2) { grid-column: 2; }
+    .about { grid-column: 3; }
+  }
+</style>

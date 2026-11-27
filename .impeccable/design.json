@@ -1,0 +1,265 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-27T20:07:22.227770+00:00",
+  "title": "Design System: yannicksblog",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "primary",
+        "displayName": "Poster Ink",
+        "canonical": "#161616",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#161616",
+          "#2b2b2b",
+          "#454545",
+          "#646464",
+          "#8a8a8a",
+          "#b8b8b8",
+          "#e6e6e6"
+        ]
+      },
+      "pink": {
+        "role": "neutral",
+        "displayName": "Sketchbook Pink",
+        "canonical": "#ffc4c0",
+        "tonalRamp": [
+          "#3a1f1d",
+          "#5c3a37",
+          "#8a5752",
+          "#b97c76",
+          "#e3a29c",
+          "#ffc4c0",
+          "#ffdcd9",
+          "#fff1f0"
+        ]
+      },
+      "pink-mute": {
+        "role": "neutral",
+        "displayName": "Pink Mute",
+        "canonical": "#5c3a37",
+        "tonalRamp": [
+          "#2a1817",
+          "#3f2725",
+          "#5c3a37",
+          "#7a514d",
+          "#9a6c67",
+          "#bb8d88",
+          "#dbb3af",
+          "#f3dcda"
+        ]
+      },
+      "butter": {
+        "role": "neutral",
+        "displayName": "Butter Yellow",
+        "canonical": "#fbe38e",
+        "tonalRamp": [
+          "#33290a",
+          "#5a4a17",
+          "#857028",
+          "#b0963c",
+          "#d8bd5c",
+          "#fbe38e",
+          "#fdeeb8",
+          "#fff8e0"
+        ]
+      },
+      "butter-mute": {
+        "role": "neutral",
+        "displayName": "Butter Mute",
+        "canonical": "#5a4a17",
+        "tonalRamp": [
+          "#271f08",
+          "#3d3210",
+          "#5a4a17",
+          "#776324",
+          "#977f38",
+          "#b89e57",
+          "#d8c184",
+          "#f2e6c2"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display-hero": {
+        "displayName": "Display hero",
+        "purpose": "One opener title per page, uppercase Londrina 900."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Post title, centred, max 18ch."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Index and pager post titles; wordmark at 26px."
+      },
+      "section-head": {
+        "displayName": "Section head",
+        "purpose": "h2 inside prose and on Über mich."
+      },
+      "pull-quote": {
+        "displayName": "Pull quote",
+        "purpose": "Centred uppercase blockquotes in prose."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Nav, post numbers, meta rows, year heads, pager labels, figure numbers."
+      },
+      "lede": {
+        "displayName": "Lede",
+        "purpose": "The one bold sans sentence under an opener title."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running text at a 64ch measure; 17px on phones."
+      },
+      "small": {
+        "displayName": "Small",
+        "purpose": "Meta lines, captions, file hints in the mute colour."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "wobble",
+        "value": "420ms ease-in-out; keyframes rotate 0 -> -1.6deg (30%) -> 1.1deg (65%) -> 0",
+        "purpose": "Only motion in the system: drawings, wordmark, index and pager titles on hover or focus; gated by prefers-reduced-motion: no-preference; never on load."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone",
+        "value": "640px"
+      },
+      {
+        "name": "index-collapse",
+        "value": "760px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Wordmark",
+      "kind": "custom",
+      "refersTo": "wordmark",
+      "description": "Black block with knocked-out capitals, rotated -2deg; links home.",
+      "html": "<a class=\"ds-mark\" href=\"#\"><span>yannicksblog</span></a>",
+      "css": ".ds-mark{text-decoration:none;display:inline-block}.ds-mark span{display:inline-block;background:var(--ink,#161616);color:var(--ground,#ffc4c0);font:900 26px/1 'Londrina Solid','Arial Narrow',sans-serif;text-transform:uppercase;letter-spacing:.01em;padding:7px 10px 4px;transform:rotate(-2deg)}@keyframes ds-wobble{0%,100%{rotate:0deg}30%{rotate:-1.6deg}65%{rotate:1.1deg}}@media (prefers-reduced-motion:no-preference){.ds-mark:hover span,.ds-mark:focus-visible span{animation:ds-wobble 420ms ease-in-out}}.ds-mark:focus-visible{outline:3px solid var(--ink,#161616);outline-offset:4px}"
+    },
+    {
+      "name": "Navigation",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Uppercase Londrina links; 3px underline on hover and current page.",
+      "html": "<nav class=\"ds-nav\"><a href=\"#\" aria-current=\"page\">Geschichten</a><a href=\"#\">Projekte</a><a href=\"#\">Über mich</a></nav>",
+      "css": ".ds-nav{display:flex;gap:32px;font:400 21px/1.6 'Londrina Solid','Arial Narrow',sans-serif;text-transform:uppercase;letter-spacing:.03em;color:var(--ink,#161616)}.ds-nav a{color:inherit;text-decoration:none;padding-block:4px}.ds-nav a:hover,.ds-nav a[aria-current=page]{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:.2em}.ds-nav a:focus-visible{outline:3px solid var(--ink,#161616);outline-offset:4px}"
+    },
+    {
+      "name": "Post Index Row",
+      "kind": "custom",
+      "refersTo": "post-row-title",
+      "description": "Numbered row between 2px rules; title wobbles and underlines on hover; read posts get a hand-drawn tick.",
+      "html": "<ol class=\"ds-ix\"><li class=\"ds-row is-read\"><span class=\"ds-no\">Nr. 14</span><a class=\"ds-t\" href=\"#\">Der Sommer, in dem ich das Fahrrad meines Vaters reparierte<svg class=\"ds-tick\" viewBox=\"0 0 32 24\" aria-hidden=\"true\"><path d=\"M3 13c3 2 6 5 8 8 5-8 11-14 18-18\"/></svg></a><span class=\"ds-meta\">Geschichte · 3. Mai 2026</span></li><li class=\"ds-row\"><span class=\"ds-no\">Nr. 13</span><a class=\"ds-t\" href=\"#\">Ein Kalender, der nur gute Tage zählt</a><span class=\"ds-meta\">Projekt · 12. April 2026 · Platzhalter</span></li></ol>",
+      "css": ".ds-ix{list-style:none;margin:0;padding:0;border-top:2px solid var(--ink,#161616);color:var(--ink,#161616)}.ds-row{display:grid;grid-template-columns:9ch 1fr auto;column-gap:24px;align-items:baseline;padding-block:20px;border-bottom:2px solid var(--ink,#161616)}.ds-no{font:400 20px/1.6 'Londrina Solid','Arial Narrow',sans-serif;text-transform:uppercase;letter-spacing:.03em}.ds-t{display:block;width:fit-content;color:inherit;font:900 clamp(24px,1.2vw + 16px,30px)/1.02 'Londrina Solid','Arial Narrow',sans-serif;text-transform:uppercase;text-decoration:none;transform-origin:left center}.ds-t:hover{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:.12em}.ds-t:focus-visible{outline:3px solid var(--ink,#161616);outline-offset:4px}.ds-meta{font:400 15px/1.6 'Hanken Grotesk',system-ui,sans-serif;color:var(--mute,#5c3a37);text-align:right;white-space:nowrap}.ds-tick{display:none;width:.9em;height:.7em;margin-left:.25em;overflow:visible}.ds-tick path{fill:none;stroke:var(--ink,#161616);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}.is-read .ds-tick{display:inline-block}@keyframes ds-wobble{0%,100%{rotate:0deg}30%{rotate:-1.6deg}65%{rotate:1.1deg}}@media (prefers-reduced-motion:no-preference){.ds-t:hover,.ds-t:focus-visible{animation:ds-wobble 420ms ease-in-out}}"
+    },
+    {
+      "name": "Drawing Placeholder",
+      "kind": "custom",
+      "refersTo": "drawing-slot",
+      "description": "Hand-drawn dashed ink frame holding the place of a drawing the owner will supply.",
+      "html": "<div class=\"ds-slot\" role=\"img\" aria-label=\"Platzhalter für eine Zeichnung\"><svg class=\"ds-frame\" aria-hidden=\"true\" preserveAspectRatio=\"none\" viewBox=\"0 0 100 100\"><path d=\"M2.2 3.1 C20 1.6 41 2.8 58 1.9 S88 2.6 97.6 2.2 C98.4 20 97.3 39 98.1 55 S97.2 83 97.9 97.4 C79 98.3 60 97.1 42 98.2 S14 97.4 2.4 97.9 C1.6 80 2.9 61 1.8 44 S2.7 17 2.2 3.1 Z\" vector-effect=\"non-scaling-stroke\"/></svg><p class=\"ds-head\">Hier kommt eine Zeichnung</p><p class=\"ds-idea\">Ein gezeichnetes Selbstporträt.</p><p class=\"ds-file\">Platzhalter · public/drawings/portrait.svg</p></div>",
+      "css": ".ds-slot{position:relative;max-width:560px;aspect-ratio:4/3;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:24px;text-align:center;color:var(--ink,#161616);font:400 18px/1.6 'Hanken Grotesk',system-ui,sans-serif}.ds-slot p{margin:0}.ds-frame{position:absolute;inset:0;width:100%;height:100%;overflow:visible}.ds-frame path{fill:none;stroke:var(--ink,#161616);stroke-width:2.5;stroke-dasharray:14 7 4 7;stroke-linecap:round;stroke-linejoin:round}.ds-head{font:400 clamp(22px,2vw + 12px,32px)/1 'Londrina Solid','Arial Narrow',sans-serif;text-transform:uppercase;letter-spacing:.03em}.ds-idea{max-width:36ch}.ds-file{font-size:15px;color:var(--mute,#5c3a37)}"
+    },
+    {
+      "name": "Post Meta with Number Stamp",
+      "kind": "chip",
+      "refersTo": "number-stamp",
+      "description": "Centred caps meta row under the post title; the number is a tilted ink block.",
+      "html": "<p class=\"ds-pmeta\"><span class=\"ds-nr\">Nr. 14</span><a href=\"#\">Geschichte</a><span>3. Mai 2026</span><span>6 Min.</span></p>",
+      "css": ".ds-pmeta{display:flex;flex-wrap:wrap;justify-content:center;column-gap:24px;font:400 20px/1.6 'Londrina Solid','Arial Narrow',sans-serif;text-transform:uppercase;letter-spacing:.03em;color:var(--ink,#161616)}.ds-pmeta a{color:inherit;text-decoration:none}.ds-pmeta a:hover{text-decoration:underline;text-decoration-thickness:2px}.ds-pmeta a:focus-visible{outline:3px solid var(--ink,#161616);outline-offset:4px}.ds-nr{display:inline-block;background:var(--ink,#161616);color:var(--ground,#ffc4c0);padding:2px 8px 0;transform:rotate(-2deg)}"
+    },
+    {
+      "name": "Placeholder Tag",
+      "kind": "chip",
+      "refersTo": "placeholder-tag",
+      "description": "Honest marker leading a note on placeholder content.",
+      "html": "<p class=\"ds-ph\"><span class=\"ds-tag\">Platzhalter</span>Dieser Beitrag zeigt nur, wie ein Text hier aussieht.</p>",
+      "css": ".ds-ph{color:var(--mute,#5c3a37);font:400 18px/1.6 'Hanken Grotesk',system-ui,sans-serif}.ds-tag{display:inline-block;font:400 17px/1 'Londrina Solid','Arial Narrow',sans-serif;text-transform:uppercase;letter-spacing:.03em;background:var(--ink,#161616);color:var(--ground,#ffc4c0);padding:3px 7px 1px;margin-right:.5em;transform:rotate(-1.5deg)}"
+    },
+    {
+      "name": "Pager",
+      "kind": "nav",
+      "refersTo": "post-row-title",
+      "description": "Older and newer post under a 2px rule; mute caps label over a display title.",
+      "html": "<nav class=\"ds-pager\"><a class=\"ds-prev\" href=\"#\"><span class=\"ds-lbl\">Vorheriger · Nr. 13</span><span class=\"ds-pt\">Ein Kalender, der nur gute Tage zählt</span></a><span class=\"ds-next ds-lbl\">Das ist der neueste Beitrag.</span></nav>",
+      "css": ".ds-pager{display:grid;grid-template-columns:1fr 1fr;gap:32px;padding-top:32px;border-top:2px solid var(--ink,#161616);color:var(--ink,#161616)}.ds-pager>*{display:flex;flex-direction:column;gap:8px;color:inherit;text-decoration:none}.ds-next{text-align:right;align-items:flex-end}.ds-lbl{font:400 18px/1.6 'Londrina Solid','Arial Narrow',sans-serif;text-transform:uppercase;letter-spacing:.03em;color:var(--mute,#5c3a37)}.ds-pt{font:900 clamp(24px,1.2vw + 16px,30px)/1.02 'Londrina Solid','Arial Narrow',sans-serif;text-transform:uppercase;max-width:22ch;transform-origin:left center}.ds-pager a:hover .ds-pt{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:.12em}.ds-pager a:focus-visible{outline:3px solid var(--ink,#161616);outline-offset:4px}@keyframes ds-wobble{0%,100%{rotate:0deg}30%{rotate:-1.6deg}65%{rotate:1.1deg}}@media (prefers-reduced-motion:no-preference){.ds-pager a:hover .ds-pt,.ds-pager a:focus-visible .ds-pt{animation:ds-wobble 420ms ease-in-out}}"
+    },
+    {
+      "name": "Figure Plate",
+      "kind": "card",
+      "refersTo": "post-row-meta",
+      "description": "Inline currentColor figure with an 'Abb. n' caption.",
+      "html": "<figure class=\"ds-fig\"><svg viewBox=\"0 0 320 120\" aria-hidden=\"true\"><line x1=\"10\" y1=\"100\" x2=\"310\" y2=\"100\" stroke=\"currentColor\" stroke-opacity=\".22\"/><polyline points=\"10,80 80,60 150,70 220,30 310,40\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg><figcaption><span class=\"ds-figno\">Abb. 1</span> Temperaturverlauf über sieben Tage</figcaption></figure>",
+      "css": ".ds-fig{margin:0;color:var(--ink,#161616)}.ds-fig svg{display:block;width:100%;height:auto}.ds-fig figcaption{margin-top:12px;font:400 15px/1.6 'Hanken Grotesk',system-ui,sans-serif;color:var(--mute,#5c3a37)}.ds-figno{font:400 18px/1 'Londrina Solid','Arial Narrow',sans-serif;text-transform:uppercase;letter-spacing:.03em;color:var(--ink,#161616);margin-right:.3em}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Sketchbook Poster",
+    "overview": "Every page is one sheet of flat pastel paper with black ink on it. Condensed, slightly hand-cut capitals do the shouting (wordmark, navigation, titles, labels); a calm grotesk carries the reading. The owner's own black line drawings are the main character, and until they exist each one is held open by a hand-drawn dashed placeholder frame. Everything sits in one centred column, openers centred, running text left-aligned in a reading measure.\n\nThe system is minimal by commitment: one ground colour per page, one ink, one rule weight, no cards, no shadows, no second accent. Playfulness comes from three small things only: a few ink blocks set slightly askew (the wordmark, the post number, the placeholder tag), a gentle wobble when a drawing or title is touched, and a hand-drawn tick that marks posts already read.\n\nThe present implementation is Astro (`src/styles/global.css` holds every token; components in `src/components/`, pages in `src/pages/`). The system is stack-neutral: a PHP template set reproduces it by emitting the same custom properties on `:root`, the same `data-ground` attribute on `<html>`, and the component markup described below.",
+    "keyCharacteristics": [
+      "One flat pastel ground per page: pink for home, Geschichten, Über mich and 404; butter for Projekte and every Projekt post.",
+      "Black ink for everything else: type, 2px rules, drawings, figures, stamps.",
+      "Condensed uppercase display capitals against a calm sans for reading.",
+      "One centred 960px column on an 8px module.",
+      "Hand-drawn marks (dashed frame, tick, drawings) instead of icons or decoration.",
+      "Motion is a single hover wobble, never on load."
+    ],
+    "rules": [
+      {
+        "name": "The One Ground Rule",
+        "body": "A page is drenched in exactly one pastel, chosen by section. No white surfaces, no cards on a second tint, no mixing pink and butter on one page.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink-Only Rule",
+        "body": "There is no accent colour. Emphasis is made with weight, size, capitals, underline or an ink block, never with hue.",
+        "section": "colors"
+      },
+      {
+        "name": "The Paired Mute Rule",
+        "body": "Secondary text uses the mute that belongs to the current ground, never a grey and never ink at reduced opacity.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Voices Rule",
+        "body": "Display capitals label and announce; the sans reads. Never set running text in Londrina, never set a title in the sans.",
+        "section": "typography"
+      },
+      {
+        "name": "The Capitals Are the Display Rule",
+        "body": "Londrina is always uppercase. Lowercase only appears in the sans.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Paper Rule",
+        "body": "Nothing floats. If a thing needs separation, use a 2px ink rule or an ink block, never a shadow or a lighter surface.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do set the page ground by section with one attribute on the root element (`data-ground=\"butter\"` for Projekte), and read colours only through `--ground`, `--mute` and `--ink`.",
+      "Do separate things with 2px ink rules and space on the 8px module.",
+      "Do give every post its number (\"Nr. 14\") in the index, on the post page and in the pager.",
+      "Do draw figures and diagrams in `currentColor` so they follow the ink.",
+      "Do keep a drawing placeholder visible, and say what belongs there, until the owner supplies the drawing.",
+      "Do keep the wobble small, on hover and focus only, and switched off for reduced motion."
+    ],
+    "donts": [
+      "Don't introduce white or tinted cards, a second accent colour, gradients or shadows.",
+      "Don't use icon fonts or glyph icons; marks are hand-drawn SVG in ink.",
+      "Don't set running text in the display face or titles in the sans.",
+      "Don't round corners outside code.",
+      "Don't animate anything on page load."
+    ]
+  }
+}

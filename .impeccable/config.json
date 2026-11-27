@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font",
+        "value": "sf mono",
+        "createdAt": "2026-11-27T20:07:58.000Z",
+        "reason": "Claude triage: system monospace stack (ui-monospace, SF Mono, Menlo) is used only for inline code and code blocks in post prose, per Read-mode rule that monospace is for code"
+      }
+    ]
+  }
+}

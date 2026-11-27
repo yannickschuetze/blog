@@ -1,0 +1,77 @@
+---
+import '../styles/global.css';
+import Masthead from '../components/Masthead.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  current?: 'geschichte' | 'projekt' | 'about';
+  ground?: 'pink' | 'butter';
+  post?: string;
+}
+const {
+  title,
+  description = 'Geschichten aus meinem Leben und Notizen zu den Projekten, die ich nebenbei baue.',
+  current,
+  ground = 'pink',
+  post,
+} = Astro.props;
+const fullTitle = title ? `${title} – yannicksblog` : 'yannicksblog';
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const themeColor = ground === 'butter' ? '#fbe38e' : '#ffc4c0';
+---
+<!doctype html>
+<html lang="de" data-ground={ground} data-post={post}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title="yannicksblog" href="/rss.xml" />
+    <link rel="preload" href="/fonts/londrina-solid-900-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/hanken-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <meta name="theme-color" content={themeColor} />
+  </head>
+  <body>
+    <a class="skip" href="#inhalt">Zum Inhalt springen</a>
+    <Masthead current={current} />
+    <main id="inhalt">
+      <slot />
+    </main>
+    <footer class="col foot">
+      <p>Geschrieben und gezeichnet von Yannick.</p>
+      <p class="links caps"><a href="/rss.xml">RSS</a><a href="/ueber-mich/">Über mich</a></p>
+    </footer>
+    <script is:inline>
+      // Read posts get a tick in every index. Stored only in this browser.
+      (function () {
+        try {
+          var key = 'yb-read';
+          var read = JSON.parse(localStorage.getItem(key) || '[]');
+          var here = document.documentElement.dataset.post;
+          if (here && read.indexOf(here) === -1) { read.push(here); localStorage.setItem(key, JSON.stringify(read)); }
+          document.querySelectorAll('[data-nr]').forEach(function (el) {
+            if (read.indexOf(el.dataset.nr) !== -1 && el.dataset.nr !== here) el.classList.add('is-read');
+          });
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      main { flex: 1; }
+      .foot {
+        margin-top: calc(var(--m) * 16);
+        padding-bottom: calc(var(--m) * 6);
+        display: flex; justify-content: space-between; align-items: baseline; gap: calc(var(--m) * 3);
+        flex-wrap: wrap;
+      }
+      .foot::before {
+        content: ''; flex-basis: 100%; border-top: var(--rule); margin-bottom: calc(var(--m) * 2);
+      }
+      .links { display: flex; gap: calc(var(--m) * 3); font-size: 20px; }
+      .links a { text-decoration: none; }
+      .links a:hover { text-decoration: underline; }
+    </style>
+  </body>
+</html>

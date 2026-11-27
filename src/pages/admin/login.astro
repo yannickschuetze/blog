@@ -1,0 +1,45 @@
+---
+import AdminBase from '../../layouts/AdminBase.astro';
+import { verifyLogin, createSession, getSession, clientKey, isLockedOut, recordFailure, clearFailures } from '../../lib/auth';
+
+if (await getSession(Astro.cookies)) return Astro.redirect('/admin');
+
+let error = '';
+let user = '';
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  user = String(form.get('user') ?? '').trim().slice(0, 100);
+  const password = String(form.get('password') ?? '').slice(0, 500);
+  const key = clientKey(Astro.request, Astro.clientAddress);
+  if (await isLockedOut(key)) {
+    error = 'Zu viele Fehlversuche. Bitte warte 15 Minuten und versuche es dann noch einmal.';
+  } else if (user && password && (await verifyLogin(user, password))) {
+    await clearFailures(key);
+    await createSession(Astro.cookies, Astro.url.protocol === 'https:' || Astro.request.headers.get('x-forwarded-proto') === 'https');
+    return Astro.redirect('/admin');
+  } else {
+    await recordFailure(key);
+    error = 'Benutzername oder Passwort stimmt nicht.';
+  }
+}
+---
+<AdminBase title="Anmelden" bare>
+  <div class="login">
+    <div class="box">
+      <span class="stamp">yannicksblog</span>
+      <h1>Anmelden</h1>
+      {error && <p class="error" role="alert">{error}</p>}
+      <form method="post" class="form">
+        <div class="field">
+          <label for="user">Benutzername</label>
+          <input id="user" name="user" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required value={user} />
+        </div>
+        <div class="field">
+          <label for="password">Passwort</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required />
+        </div>
+        <button class="btn primary" type="submit">Anmelden</button>
+      </form>
+    </div>
+  </div>
+</AdminBase>

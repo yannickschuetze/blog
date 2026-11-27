@@ -1,0 +1,69 @@
+---
+import { SECTIONS, groupByYear, postHref, padNr, fmtDate, type Post } from '../lib/posts';
+
+interface Props {
+  posts: Post[];
+  showSection?: boolean;
+  empty: string;
+  label: string;
+}
+const { posts, showSection = true, empty, label } = Astro.props;
+const groups = groupByYear(posts);
+const many = posts.length > 12;
+---
+<section class="col ix" aria-label={label}>
+  {posts.length === 0 ? (
+    <p class="empty caps">{empty}</p>
+  ) : (
+    groups.map(([year, list]) => (
+      <div class="year">
+        {(many || groups.length > 1) && <h2 class="caps yr">{year}</h2>}
+        <ol>
+          {list.map((p) => (
+            <li class="row" data-nr={padNr(p.nr)}>
+              <span class="no caps">Nr. {p.nr}</span>
+              <a class="t display wobble" href={postHref(p)}>{p.title}<svg class="tick" viewBox="0 0 32 24" aria-hidden="true"><path d="M3 13c3 2 6 5 8 8 5-8 11-14 18-18" /></svg>
+                <span class="visually-hidden read-note">(gelesen)</span>
+              </a>
+              <span class="meta">
+                {showSection && <>{SECTIONS[p.section].label} · </>}
+                <time datetime={p.dateIso}>{fmtDate(p.date)}</time>
+                {p.placeholder && <span class="ph"> · Platzhalter</span>}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    ))
+  )}
+</section>
+<style>
+  .ix { margin-top: calc(var(--m) * 10); }
+  ol { list-style: none; border-top: var(--rule); }
+  .yr { font-size: 24px; margin: calc(var(--m) * 6) 0 var(--m); }
+  .year:first-child .yr { margin-top: 0; }
+  .row {
+    display: grid;
+    grid-template-columns: 9ch 1fr auto;
+    column-gap: calc(var(--m) * 3);
+    align-items: baseline;
+    padding-block: calc(var(--m) * 2.5);
+    border-bottom: var(--rule);
+  }
+  .no { font-size: 20px; }
+  .t { display: block; width: fit-content; font-size: var(--t-row); line-height: 1.02; text-decoration: none; text-wrap: balance; transform-origin: left center; }
+  .t:hover { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 0.12em; }
+  .meta { font-size: var(--t-small); color: var(--mute); text-align: right; white-space: nowrap; }
+  .ph { white-space: nowrap; }
+  .tick { display: none; width: 0.9em; height: 0.7em; margin-left: 0.25em; vertical-align: baseline; overflow: visible; }
+  .tick path { fill: none; stroke: var(--ink); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+  .read-note { display: none; }
+  .is-read .tick, .is-read .read-note { display: inline-block; }
+  .empty { font-size: 26px; padding-block: calc(var(--m) * 4); border-block: var(--rule); text-align: center; }
+
+  @media (max-width: 760px) {
+    .row { grid-template-columns: 6ch 1fr; row-gap: var(--m); }
+    .meta { grid-column: 2; text-align: left; white-space: normal; }
+    .no { font-size: 18px; }
+  }
+</style>

@@ -1,0 +1,52 @@
+---
+interface Props {
+  /** URL of the uploaded drawing, or null to show the placeholder. */
+  src?: string | null;
+  /** What the drawing shows; used as alt text. */
+  alt: string;
+  /** What should be drawn here; shown on the placeholder. */
+  idea: string;
+  ratio?: string;
+  size?: 'hero' | 'medium' | 'small';
+  /** Where to upload it, shown on the placeholder. */
+  where?: string;
+}
+const { src, alt, idea, ratio = '16 / 9', size = 'medium', where = 'im Admin unter Zeichnungen' } = Astro.props;
+---
+<div class:list={['drawing', `drawing-${size}`]} style={`--ratio: ${ratio}`}>
+  {src ? (
+    <img class="wobble" src={src} alt={alt} loading={size === 'hero' ? 'eager' : 'lazy'} decoding="async" />
+  ) : (
+    <div class="slot" role="img" aria-label={`Platzhalter für eine Zeichnung: ${idea}`}>
+      <svg class="frame" aria-hidden="true" preserveAspectRatio="none" viewBox="0 0 100 100">
+        <path d="M2.2 3.1 C20 1.6 41 2.8 58 1.9 S88 2.6 97.6 2.2 C98.4 20 97.3 39 98.1 55 S97.2 83 97.9 97.4 C79 98.3 60 97.1 42 98.2 S14 97.4 2.4 97.9 C1.6 80 2.9 61 1.8 44 S2.7 17 2.2 3.1 Z" vector-effect="non-scaling-stroke" />
+      </svg>
+      <p class="caps head">Hier kommt eine Zeichnung</p>
+      <p class="idea">{idea}</p>
+      <p class="file">Platzhalter · hochladen {where}</p>
+    </div>
+  )}
+</div>
+<style>
+  .drawing { margin-inline: auto; width: 100%; }
+  .drawing-hero { max-width: 760px; }
+  .drawing-medium { max-width: 560px; }
+  .drawing-small { max-width: 320px; }
+  img { display: block; width: 100%; height: auto; }
+  .drawing-hero img { max-height: 40vh; object-fit: contain; }
+  .slot {
+    position: relative;
+    aspect-ratio: var(--ratio);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: var(--m);
+    padding: calc(var(--m) * 3);
+    text-align: center;
+  }
+  .frame { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .frame path { fill: none; stroke: var(--ink); stroke-width: 2.5; stroke-dasharray: 14 7 4 7; stroke-linecap: round; stroke-linejoin: round; }
+  .head { font-size: clamp(22px, 2vw + 12px, 32px); line-height: 1; }
+  .idea { max-width: 36ch; }
+  .file { font-size: var(--t-small); color: var(--mute); }
+  .drawing-small .head { font-size: 20px; }
+  .drawing-small .idea { font-size: var(--t-small); }
+</style>

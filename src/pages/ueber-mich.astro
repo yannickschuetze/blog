@@ -1,0 +1,46 @@
+---
+import type { RowDataPacket } from 'mysql2';
+import Base from '../layouts/Base.astro';
+import Drawing from '../components/Drawing.astro';
+import { getPosts } from '../lib/posts';
+import { getDrawing, SLOTS } from '../lib/drawings';
+import { renderMarkdown } from '../lib/markdown';
+import { db } from '../lib/db';
+
+const posts = await getPosts();
+const stories = posts.filter((p) => p.section === 'geschichte').length;
+const projects = posts.length - stories;
+const drawing = await getDrawing('portrait');
+const [rows] = await db().query<RowDataPacket[]>("SELECT body, placeholder FROM pages WHERE slug = 'ueber-mich' LIMIT 1");
+const page = rows[0] ?? { body: '', placeholder: 1 };
+const html = renderMarkdown(page.body);
+---
+<Base title="Über mich" description="Wer hier schreibt und zeichnet." current="about">
+  <div class="col about">
+    <h1 class="display">Hallo, ich bin Yannick</h1>
+    <Drawing src={drawing?.src} alt={drawing?.alt ?? 'Selbstporträt von Yannick, gezeichnet'} idea={SLOTS.portrait.idea} ratio={SLOTS.portrait.ratio} size="small" />
+    <div class="body">
+      {Boolean(page.placeholder) && (
+        <p class="placeholder"><span class="tag">Platzhalter</span>Der folgende Text ist ein Entwurf und wird durch Yannicks eigene Worte ersetzt.</p>
+      )}
+      <div class="text"><Fragment set:html={html} /></div>
+      <h2 class="display">Bisher</h2>
+      <p class="tally caps"><a href="/geschichten/">{stories} Geschichten</a> · <a href="/projekte/">{projects} Projekte</a> · <a href="/rss.xml">RSS</a></p>
+    </div>
+  </div>
+</Base>
+<style>
+  .about { text-align: center; padding-top: calc(var(--m) * 12); }
+  h1 { font-size: var(--t-hero); max-width: 12ch; margin: 0 auto calc(var(--m) * 6); }
+  .body { text-align: left; max-width: var(--measure); margin: calc(var(--m) * 6) auto 0; }
+  .body p, .text :global(p) { margin-bottom: calc(var(--m) * 3); }
+  .text :global(a) { font-weight: 700; }
+  .text :global(h2) { font: 900 30px/1 var(--display); text-transform: uppercase; margin: calc(var(--m) * 7) 0 calc(var(--m) * 2); }
+  .body h2 { font-size: 30px; margin: calc(var(--m) * 7) 0 calc(var(--m) * 2); }
+  .tally { font-size: 24px; }
+  .tally a { font-weight: 400; text-decoration: none; }
+  .tally a:hover { text-decoration: underline; }
+  .body .placeholder { color: var(--mute); }
+  .placeholder .tag { font: 400 17px/1 var(--display); text-transform: uppercase; letter-spacing: 0.03em; background: var(--ink); color: var(--ground); padding: 3px 7px 1px; margin-right: 0.5em; display: inline-block; transform: rotate(-1.5deg); }
+  @media (max-width: 640px) { .about { padding-top: calc(var(--m) * 7); } }
+</style>

@@ -1,0 +1,139 @@
+@font-face {
+  font-family: "Londrina Solid";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/londrina-solid-400-latin.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Londrina Solid";
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url("/fonts/londrina-solid-900-latin.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Hanken Grotesk";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/hanken-grotesk-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Hanken Grotesk";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/hanken-grotesk-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Hanken Grotesk";
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/hanken-grotesk-italic-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  /* Sketchbook poster: one flat pastel per section, everything else black ink. */
+  --m: 8px;
+  --ink: #161616;
+  --pink: #ffc4c0;
+  --pink-mute: #5c3a37;
+  --butter: #fbe38e;
+  --butter-mute: #5a4a17;
+
+  --ground: var(--pink);
+  --mute: var(--pink-mute);
+
+  --display: "Londrina Solid", "Arial Narrow", sans-serif;
+  --text: "Hanken Grotesk", system-ui, sans-serif;
+
+  --body: 18px;
+  --t-hero: clamp(44px, 5.2vw + 12px, 80px);
+  --t-title: clamp(36px, 3.6vw + 12px, 60px);
+  --t-row: clamp(24px, 1.2vw + 16px, 30px);
+  --t-small: 15px;
+
+  --col: 960px;
+  --edge: calc(var(--m) * 5);
+  --measure: 64ch;
+  --rule: 2px solid var(--ink);
+
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  color-scheme: light;
+}
+:root[data-ground='butter'] { --ground: var(--butter); --mute: var(--butter-mute); }
+
+@media (max-width: 640px) {
+  :root { --edge: calc(var(--m) * 3); --body: 17px; }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; padding: 0; }
+
+html {
+  background: var(--ground);
+  color: var(--ink);
+  font: 400 var(--body) / 1.6 var(--text);
+  font-variant-numeric: tabular-nums;
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+  caret-color: var(--ink);
+  scrollbar-color: var(--ink) var(--ground);
+}
+body { min-height: 100svh; display: flex; flex-direction: column; }
+
+::selection { background: var(--ink); color: var(--ground); }
+
+a { color: inherit; text-decoration-thickness: 2px; text-underline-offset: 0.18em; }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+
+.col {
+  width: 100%;
+  max-width: calc(var(--col) + var(--edge) * 2);
+  margin-inline: auto;
+  padding-inline: var(--edge);
+}
+
+.display {
+  font-family: var(--display);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.98;
+  letter-spacing: 0.005em;
+  text-wrap: balance;
+  hyphens: manual;
+}
+.caps {
+  font-family: var(--display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.mute { color: var(--mute); }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+.skip {
+  position: absolute; left: var(--edge); top: calc(var(--m) * -8);
+  background: var(--ink); color: var(--ground); padding: var(--m) calc(var(--m) * 2);
+  text-decoration: none; z-index: 10;
+}
+.skip:focus { top: var(--m); }
+
+/* The one playful gesture: a small wobble, never on load, only when touched. */
+@keyframes wobble {
+  0%, 100% { rotate: 0deg; }
+  30% { rotate: -1.6deg; }
+  65% { rotate: 1.1deg; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .wobble:hover, a:hover > .wobble, a:focus-visible > .wobble { animation: wobble 420ms ease-in-out; }
+}

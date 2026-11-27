@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import Drawing from '../components/Drawing.astro';
+import { getDrawing, SLOTS } from '../lib/drawings';
+const drawing = await getDrawing('404').catch(() => null);
+---
+<Base title="Nicht gefunden">
+  <div class="col nf">
+    <h1 class="display">Nr. 404. Diese Seite gibt es nicht</h1>
+    <p class="lede">Vielleicht hat sie nie existiert, vielleicht ist sie umgezogen.</p>
+    <Drawing src={drawing?.src} alt={drawing?.alt ?? "Zeichnung: etwas ist verloren gegangen"} idea={SLOTS["404"].idea} ratio={SLOTS["404"].ratio} size="small" />
+    <p class="go caps"><a href="/">Zurück zur Startseite</a></p>
+  </div>
+</Base>
+<style>
+  .nf { text-align: center; padding-top: calc(var(--m) * 12); }
+  h1 { font-size: var(--t-hero); max-width: 14ch; margin-inline: auto; }
+  .lede { font-weight: 700; font-size: 24px; margin: calc(var(--m) * 3) auto calc(var(--m) * 6); max-width: 30ch; text-wrap: balance; }
+  .go { font-size: 26px; margin-top: calc(var(--m) * 5); }
+  @media (max-width: 640px) { .nf { padding-top: calc(var(--m) * 7); } .lede { font-size: 20px; } }
+</style>

@@ -1,0 +1,85 @@
+---
+import AdminBase from '../../layouts/AdminBase.astro';
+import { csrfOk } from '../../lib/auth';
+import { db } from '../../lib/db';
+import { SLOTS, SLOT_ORDER, getAllDrawings, type Slot } from '../../lib/drawings';
+import { saveUpload, removeUpload, uploadUrl, MAX_UPLOAD_BYTES } from '../../lib/uploads';
+
+let error = '';
+let done = '';
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  if (!csrfOk(Astro.locals.session, form)) return new Response('Ungültige Anfrage. Lade die Seite neu.', { status: 403 });
+  const slot = String(form.get('slot') ?? '') as Slot;
+  if (!(slot in SLOTS)) return Astro.redirect('/admin/zeichnungen');
+  const current = (await getAllDrawings())[slot];
+  const alt = String(form.get('alt') ?? '').trim().slice(0, 300) || SLOTS[slot].idea;
+
+  if (form.get('action') === 'remove') {
+    if (current) {
+      await db().query('DELETE FROM drawings WHERE slot = ?', [slot]);
+      await removeUpload(current.file);
+    }
+    done = `${SLOTS[slot].label}: Zeichnung entfernt, der Platzhalter ist zurück.`;
+  } else {
+    const up = await saveUpload(form.get('file') as File | null, `slot-${slot}`);
+    if (up && !up.ok) {
+      error = `${SLOTS[slot].label}: ${up.error}`;
+    } else if (up?.ok) {
+      await db().query(
+        'INSERT INTO drawings (slot, file, alt) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE file = VALUES(file), alt = VALUES(alt)',
+        [slot, up.file, alt],
+      );
+      if (current) await removeUpload(current.file);
+      done = `${SLOTS[slot].label}: Zeichnung ist online.`;
+    } else if (current) {
+      await db().query('UPDATE drawings SET alt = ? WHERE slot = ?', [alt, slot]);
+      done = `${SLOTS[slot].label}: Beschreibung gespeichert.`;
+    } else {
+      error = `${SLOTS[slot].label}: Bitte zuerst eine Datei auswählen.`;
+    }
+  }
+}
+
+const drawings = await getAllDrawings();
+const csrf = Astro.locals.session?.csrf ?? '';
+const maxMb = Math.round(MAX_UPLOAD_BYTES / 1024 / 1024);
+---
+<AdminBase title="Zeichnungen" current="drawings">
+  <h1>Zeichnungen</h1>
+  <p class="hint">Die festen Bilder der Seite. Zeichnungen für einzelne Beiträge lädst du direkt beim Beitrag hoch. Am besten schwarze Tinte auf transparentem PNG, bis {maxMb} MB.</p>
+  {done && <p class="notice" role="status"><span class="tag">Erledigt</span>{done}</p>}
+  {error && <p class="error" role="alert">{error}</p>}
+  <div class="slots">
+    {SLOT_ORDER.map((slot) => {
+      const d = drawings[slot];
+      return (
+        <section class="slot" aria-labelledby={`slot-${slot}`}>
+          <h2 id={`slot-${slot}`}>{SLOTS[slot].label}</h2>
+          <div class="slot-card">
+          <div class:list={['thumb', { filled: d }]}>
+            {d ? <img src={uploadUrl(d.file)} alt="" /> : <span class="caps">Platzhalter</span>}
+          </div>
+          <form method="post" enctype="multipart/form-data" class="form">
+            <p class="hint">{SLOTS[slot].idea}</p>
+            <input type="hidden" name="csrf" value={csrf} />
+            <input type="hidden" name="slot" value={slot} />
+            <div class="field">
+              <label for={`file-${slot}`}>{d ? 'Ersetzen' : 'Hochladen'}</label>
+              <input id={`file-${slot}`} name="file" type="file" accept="image/png,image/jpeg,image/webp" />
+            </div>
+            <div class="field">
+              <label for={`alt-${slot}`}>Was ist zu sehen?</label>
+              <input id={`alt-${slot}`} name="alt" type="text" maxlength="300" value={d?.alt ?? ''} placeholder={SLOTS[slot].idea} />
+            </div>
+            <div class="actions">
+              <button class="btn primary" type="submit" name="action" value="save">Speichern</button>
+              {d && <button class="btn" type="submit" name="action" value="remove">Entfernen</button>}
+            </div>
+          </form>
+          </div>
+        </section>
+      );
+    })}
+  </div>
+</AdminBase>

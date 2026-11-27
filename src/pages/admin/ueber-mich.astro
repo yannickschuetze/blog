@@ -1,0 +1,36 @@
+---
+import type { RowDataPacket } from 'mysql2';
+import AdminBase from '../../layouts/AdminBase.astro';
+import { csrfOk } from '../../lib/auth';
+import { db } from '../../lib/db';
+
+let saved = false;
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  if (!csrfOk(Astro.locals.session, form)) return new Response('Ungültige Anfrage. Lade die Seite neu.', { status: 403 });
+  const body = String(form.get('body') ?? '').replace(/\r\n/g, '\n').slice(0, 200_000);
+  const placeholder = form.get('placeholder') === 'on' ? 1 : 0;
+  await db().query(
+    "INSERT INTO pages (slug, body, placeholder) VALUES ('ueber-mich', ?, ?) ON DUPLICATE KEY UPDATE body = VALUES(body), placeholder = VALUES(placeholder)",
+    [body, placeholder],
+  );
+  saved = true;
+}
+const [rows] = await db().query<RowDataPacket[]>("SELECT body, placeholder FROM pages WHERE slug = 'ueber-mich' LIMIT 1");
+const page = rows[0] ?? { body: '', placeholder: 0 };
+const csrf = Astro.locals.session?.csrf ?? '';
+---
+<AdminBase title="Über mich" current="about">
+  <h1>Über mich</h1>
+  {saved && <p class="notice" role="status"><span class="tag">Erledigt</span>Gespeichert und online. <a href="/ueber-mich/" target="_blank" rel="noopener">Ansehen</a></p>}
+  <form method="post" class="form">
+    <input type="hidden" name="csrf" value={csrf} />
+    <div class="field">
+      <label for="body">Text</label>
+      <textarea id="body" name="body" spellcheck="true" lang="de">{page.body}</textarea>
+      <span class="hint">Markdown wie bei den Beiträgen. Die Überschrift „Hallo, ich bin Yannick“ und dein Porträt (unter Zeichnungen) stehen schon darüber.</span>
+    </div>
+    <label class="check"><input type="checkbox" name="placeholder" checked={Boolean(page.placeholder)} /> Als Platzhalter kennzeichnen</label>
+    <div class="savebar"><div class="actions"><button class="btn primary" type="submit">Speichern</button></div></div>
+  </form>
+</AdminBase>

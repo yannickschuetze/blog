@@ -1,0 +1,192 @@
+---
+import AdminBase from '../../../layouts/AdminBase.astro';
+import { getPostById, nextNr, postHref, type Post } from '../../../lib/posts';
+import { csrfOk } from '../../../lib/auth';
+import { uploadUrl, MAX_UPLOAD_BYTES } from '../../../lib/uploads';
+import {
+  inputFromForm, inputFromPost, validate, handleUploads, savePost, deletePost, todayBerlin, type PostInput,
+} from '../../../lib/admin-posts';
+
+const param = Astro.params.id ?? '';
+const isNew = param === 'neu';
+if (!isNew && !/^\d+$/.test(param)) return Astro.redirect('/admin');
+
+let post: Post | null = null;
+if (!isNew) {
+  post = await getPostById(Number(param));
+  if (!post) return Astro.redirect('/admin');
+}
+
+let input: PostInput = post
+  ? inputFromPost(post)
+  : { nr: String(await nextNr()), title: '', section: '', date: todayBerlin(), summary: '', body: '', drawingIdea: '', placeholder: false };
+let errors: string[] = [];
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  if (!csrfOk(Astro.locals.session, form)) return new Response('Ungültige Anfrage. Lade die Seite neu.', { status: 403 });
+  const action = String(form.get('action') ?? 'draft');
+
+  if (action === 'delete' && post) {
+    if (form.get('confirmDelete') === 'on') {
+      await deletePost(post);
+      return Astro.redirect('/admin?ok=deleted');
+    }
+    errors = ['Zum Löschen bitte das Häkchen „Ja, endgültig löschen“ setzen.'];
+  } else {
+    input = inputFromForm(form);
+    const status = action === 'publish' ? 'published' : action === 'unpublish' ? 'draft' : (post?.status ?? 'draft');
+    errors = await validate(input, post?.id ?? null, status === 'published');
+    if (!errors.length) {
+      const up = await handleUploads(form, input, { drawing: post?.drawing ?? null });
+      input.body = up.body;
+      if (up.errors.length) {
+        errors = up.errors;
+      } else {
+        const id = await savePost(post?.id ?? null, input, up.drawing, up.body, status);
+        const ok = action === 'publish' ? (post?.status === 'published' ? 'updated' : 'published') : action === 'unpublish' ? 'unpublished' : 'saved';
+        return Astro.redirect(`/admin/beitrag/${id}?ok=${ok}`);
+      }
+    }
+  }
+}
+
+const csrf = Astro.locals.session?.csrf ?? '';
+const published = post?.status === 'published';
+const okMessages: Record<string, string> = {
+  saved: published ? 'Gespeichert. Die Änderungen sind online.' : 'Entwurf gespeichert.',
+  published: 'Veröffentlicht. Der Beitrag ist jetzt online.',
+  updated: 'Gespeichert. Die Änderungen sind online.',
+  unpublished: 'Zurückgezogen. Der Beitrag ist wieder ein Entwurf.',
+};
+const ok = Astro.url.searchParams.get('ok');
+const maxMb = Math.round(MAX_UPLOAD_BYTES / 1024 / 1024);
+---
+<AdminBase title={isNew ? 'Neuer Beitrag' : `Nr. ${post!.nr} bearbeiten`} current="posts" ground={input.section === 'projekt' ? 'butter' : 'pink'}>
+  <h1>{isNew ? 'Neuer Beitrag' : `Nr. ${post!.nr}`}</h1>
+  {ok && okMessages[ok] && !errors.length && (
+    <p class="notice" role="status">
+      <span class="tag">Erledigt</span>{okMessages[ok]}
+      {published && <a href={postHref(post!)} target="_blank" rel="noopener">Ansehen</a>}
+    </p>
+  )}
+  {errors.length > 0 && (
+    <div class="error" role="alert"><p>Das hat nicht geklappt:</p><ul>{errors.map((e) => <li>{e}</li>)}</ul></div>
+  )}
+  {post && (
+    <p class="notice">
+      {published ? <span class="badge">Online</span> : <span class="badge draft">Entwurf</span>}
+      <a href={`/admin/vorschau/${post.id}`} target="_blank" rel="noopener">Vorschau öffnen</a>
+    </p>
+  )}
+
+  <form method="post" enctype="multipart/form-data" class="form" id="post-form">
+    <input type="hidden" name="csrf" value={csrf} />
+
+    <fieldset class="choice">
+      <legend>Rubrik</legend>
+      <div class="opts">
+        <input type="radio" id="sec-g" name="section" value="geschichte" checked={input.section === 'geschichte'} required />
+        <label for="sec-g"><span class="sw pink" aria-hidden="true"></span>Geschichte</label>
+        <input type="radio" id="sec-p" name="section" value="projekt" checked={input.section === 'projekt'} />
+        <label for="sec-p"><span class="sw butter" aria-hidden="true"></span>Projekt</label>
+      </div>
+    </fieldset>
+
+    <div class="field">
+      <label for="title">Titel</label>
+      <input id="title" name="title" type="text" required maxlength="300" value={input.title} />
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label for="nr">Nummer</label>
+        <input id="nr" name="nr" type="number" inputmode="numeric" min="1" required value={input.nr} />
+        <span class="hint">Bleibt für immer die Adresse, z.&nbsp;B. /{input.nr.padStart(3, '0')}/</span>
+      </div>
+      <div class="field">
+        <label for="date">Datum</label>
+        <input id="date" name="date" type="date" required value={input.date} />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="body">Text</label>
+      <textarea id="body" name="body" spellcheck="true" lang="de" placeholder="Schreib einfach los. ## Zwischenüberschrift, **fett**, > Zitat, [Link](https://…)">{input.body}</textarea>
+      <span class="hint">Markdown: ## Zwischenüberschrift · **fett** · *kursiv* · &gt; Zitat · [Linktext](Adresse) · Leerzeile für neuen Absatz</span>
+    </div>
+
+    <div class="field">
+      <label for="image">Bild in den Text einfügen</label>
+      <input id="image" name="image" type="file" accept="image/png,image/jpeg,image/webp" />
+      <input name="imageCaption" type="text" maxlength="200" placeholder="Bildunterschrift (optional)" aria-label="Bildunterschrift" />
+      <span class="hint">Wird beim Speichern als nummerierte Abbildung ans Ende des Texts gehängt. PNG, JPEG oder WebP, bis {maxMb} MB.</span>
+    </div>
+
+    <h2>Zeichnung</h2>
+    <div class="slot-card">
+      <div class:list={['thumb', { filled: post?.drawing }]}>
+        {post?.drawing ? <img src={uploadUrl(post.drawing)} alt="" /> : <span class="caps">Noch keine Zeichnung</span>}
+      </div>
+      <div class="form">
+        <div class="field">
+          <label for="drawing">{post?.drawing ? 'Zeichnung ersetzen' : 'Zeichnung hochladen'}</label>
+          <input id="drawing" name="drawing" type="file" accept="image/png,image/jpeg,image/webp" />
+          <span class="hint">Am besten schwarze Tinte auf transparentem PNG. Bis {maxMb} MB.</span>
+        </div>
+        <div class="field">
+          <label for="drawingIdea">Was ist zu sehen?</label>
+          <input id="drawingIdea" name="drawingIdea" type="text" maxlength="300" value={input.drawingIdea} />
+          <span class="hint">Beschreibt die Zeichnung für Menschen, die sie nicht sehen. Ohne Zeichnung erscheint hier ein Platzhalter mit diesem Text.</span>
+        </div>
+        {post?.drawing && (
+          <label class="check"><input type="checkbox" name="removeDrawing" /> Zeichnung entfernen</label>
+        )}
+      </div>
+    </div>
+
+    <h2>Mehr</h2>
+    <div class="field">
+      <label for="summary">Kurzbeschreibung</label>
+      <textarea id="summary" name="summary" class="short" maxlength="500">{input.summary}</textarea>
+      <span class="hint">Ein, zwei Sätze für Suchmaschinen und den RSS-Feed. Optional.</span>
+    </div>
+    <label class="check"><input type="checkbox" name="placeholder" checked={input.placeholder} /> Als Platzhalter kennzeichnen</label>
+
+    <div class="savebar">
+      <div class="actions">
+        {published ? (
+          <>
+            <button class="btn" type="submit" name="action" value="unpublish" formnovalidate>Zurückziehen</button>
+            <button class="btn primary" type="submit" name="action" value="publish">Speichern</button>
+          </>
+        ) : (
+          <>
+            <button class="btn" type="submit" name="action" value="draft">Entwurf speichern</button>
+            <button class="btn primary" type="submit" name="action" value="publish">Veröffentlichen</button>
+          </>
+        )}
+      </div>
+    </div>
+  </form>
+
+  {post && (
+    <details class="danger">
+      <summary>Beitrag löschen</summary>
+      <form method="post" class="form">
+        <input type="hidden" name="csrf" value={csrf} />
+        <p>Nr. {post.nr} wird mit seiner Zeichnung endgültig gelöscht. Das lässt sich nicht rückgängig machen.</p>
+        <label class="check"><input type="checkbox" name="confirmDelete" required /> Ja, endgültig löschen</label>
+        <div class="actions"><button class="btn" type="submit" name="action" value="delete">Löschen</button></div>
+      </form>
+    </details>
+  )}
+  <script is:inline>
+    // The page takes the section's ground as soon as you pick one.
+    document.querySelectorAll('input[name="section"]').forEach(function (el) {
+      el.addEventListener('change', function () {
+        document.documentElement.dataset.ground = el.value === 'projekt' ? 'butter' : 'pink';
+      });
+    });
+  </script>
+</AdminBase>
