@@ -3,7 +3,7 @@ dist/
 .astro/
 .DS_Store
 .env
-uploads/
+/uploads/
 
 # impeccable runtime files
 .impeccable/questions/
